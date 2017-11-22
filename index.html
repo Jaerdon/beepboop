@@ -13,8 +13,8 @@
     <p>Output:<p>
     <p id='outputText'></p>
     <script type="text/javascript">
-        var markovChain = new Array()
         function markovify() {
+            var markovChain = new Array();
             var database = document.getElementById('database').value.match(/[^\r\n]+/g);
             for (var line = 0; line < database.length; line++) {
                 var quote = database[line].split(' ');
