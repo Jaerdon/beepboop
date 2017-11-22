@@ -13,32 +13,24 @@
     <p>Output:<p>
     <p id='outputText'></p>
     <script type="text/javascript">
+        var endingChars = [".", "!", ">", "?", "}", "~", "{", ";"];
         function markovify() {
             var markovChain = new Array();
             var database = document.getElementById('database').value.match(/[^\r\n]+/g);
             for (var line = 0; line < database.length; line++) {
                 var quote = database[line].split(' ');
+                if (!endingChars.includes(quote[quote.length - 1].substr(-1))) { quote[quote.length - 1] += "."; }
                 for (var word = 0; word < quote.length; word++) {
-                    if (word === quote.length - 1) {
+                    if (word == quote.length - 1) {
                         if (typeof markovChain['__end'] == 'undefined') {markovChain['__end'] = new Array();}
-                        var endWords = markovChain['__end'];
-                        endWords.push(quote[word]);
-                        markovChain['__end'] = endWords;
+                        markovChain['__end'].push(quote[word]);
                     } else {
-                        if (word === 0) {
+                        if (word == 0) {
                             if (typeof markovChain['__start'] == 'undefined') {markovChain['__start'] = new Array();}
-                            var startWords = markovChain['__start'];
-                            startWords.push(quote[word]);
-                            markovChain['__start'] = startWords;
+                            markovChain['__start'].push(quote[word]);
                         }
-                        if (typeof markovChain[quote[word]] == 'undefined') {markovChain[quote[word]] = new Array();}
-                        var suffix = markovChain[quote[word]];
-                        try {
-                            suffix.push(quote[word + 1]);
-                        } catch (err) {
-                            document.getElementById('outputText').innerHTML = "Error on phrase: " + quote[word] + " " + quote[word + 1] + "<br>Please remove the line containing this phrase.";
-                        }
-                        markovChain[quote[word]] = suffix;
+                        if (typeof markovChain[quote[word]] == 'undefined' || typeof markovChain[quote[word]] == 'function') {markovChain[quote[word]] = new Array();}
+                        markovChain[quote[word]].push(quote[word + 1]);
                     }
                 }
             }
@@ -47,9 +39,10 @@
                 var startWords = markovChain['__start'];
                 var currentWord = startWords[Math.floor(Math.random()*startWords.length)];
                 var response = currentWord;
-                while (currentWord.substr(-1) != "." && currentWord.substr(-1) != "!" && currentWord.substr(-1) != "?" && currentWord.substr(-1) != "~") {
+
+                while (!endingChars.includes(currentWord.substr(-1))) {
                     currentWord = markovChain[currentWord][[Math.floor(Math.random()*markovChain[currentWord].length)]];
-                    response = response + " " + currentWord;
+                    response += " " + currentWord;
                 }
                 responses.push(response);
             }
